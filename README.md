@@ -32,8 +32,10 @@ mvn spring-boot:run "-Dspring-boot.run.arguments=--spring.profiles.active=lab,--
 mvn spring-boot:run "-Dspring-boot.run.arguments=--spring.profiles.active=lab,--server.port=8081"
 ```
 
-The app will start at **http://localhost:8081**.  
-La app iniciará en **http://localhost:8081**.
+<img width="623" height="112" alt="Captura de pantalla 2025-09-07 163440" src="https://github.com/user-attachments/assets/68a1c152-88b3-4aec-9345-4389a3047df9" />
+
+The app will start at **http://localhost:8080**.  
+La app iniciará en **http://localhost:8080**.
 
 ---
 
@@ -48,6 +50,12 @@ Base path / Ruta base: `/lab/users`
 | POST   | `/lab/users`      | Create user                         | Crea un usuario                  |
 | PUT    | `/lab/users/{id}` | Update user                       | Actualiza un usuario             |
 | DELETE | `/lab/users/{id}` | Delete user                       | Elimina un usuario               |
+
+<img width="1367" height="784" alt="Captura de pantalla 2025-09-07 164513" src="https://github.com/user-attachments/assets/e881e0ee-0ae8-4ba2-8011-b4ed1e107e3e" />
+<img width="1378" height="640" alt="Captura de pantalla 2025-09-07 164521" src="https://github.com/user-attachments/assets/2507fb40-3891-47d9-84ee-ae2de4284f6c" />
+<img width="1378" height="722" alt="Captura de pantalla 2025-09-07 164528" src="https://github.com/user-attachments/assets/fbede22e-ff83-4f2f-b120-c7c1c75b2c05" />
+<img width="1368" height="937" alt="Captura de pantalla 2025-09-07 164547" src="https://github.com/user-attachments/assets/6a121da1-b4c1-4b61-b509-3036184d8b0b" />
+<img width="1372" height="668" alt="Captura de pantalla 2025-09-07 164457" src="https://github.com/user-attachments/assets/1ff6e33c-7036-4132-8840-f9830be9f4d4" />
 
 ### JSON samples / Ejemplos JSON
 
@@ -83,7 +91,7 @@ Se incluye una colección lista para usar.
 
 1. Open Postman → **Import** → *File*.  
 2. Select `Econexion_Lab_Users_CRUD.postman_collection.json`.  
-3. The collection uses a `baseUrl` variable: `http://localhost:8081`.
+3. The collection uses a `baseUrl` variable: `http://localhost:8080`.
 
 > If you prefer cURL examples, see Section 7.  
 > Si prefieres cURL, ver Sección 7.
@@ -112,17 +120,17 @@ Si usas Spring Security, permite `/lab/**` en `SecurityConfig`.
 
 ```bash
 # List
-curl -X GET http://localhost:8081/lab/users
+curl -X GET http://localhost:8080/lab/users
 
 # Create
-curl -X POST http://localhost:8081/lab/users   -H "Content-Type: application/json"   -d '{"name":"Ada Lovelace","email":"ada@demo.test"}'
+curl -X POST http://localhost:8080/lab/users   -H "Content-Type: application/json"   -d '{"name":"Ada Lovelace","email":"ada@demo.test"}'
 
 # Replace <built-in function id> with a real id
-curl -X GET http://localhost:8081/lab/users/{ID}
+curl -X GET http://localhost:8080/lab/users/{ID}
 
-curl -X PUT http://localhost:8081/lab/users/{ID}   -H "Content-Type: application/json"   -d '{"name":"Ada L.","email":"ada@demo.test"}'
+curl -X PUT http://localhost:8080/lab/users/{ID}   -H "Content-Type: application/json"   -d '{"name":"Ada L.","email":"ada@demo.test"}'
 
-curl -X DELETE http://localhost:8081/lab/users/{ID}
+curl -X DELETE http://localhost:8080/lab/users/{ID}
 ```
 
 ---
@@ -131,8 +139,10 @@ curl -X DELETE http://localhost:8081/lab/users/{ID}
 
 ```bash
 mvn -DskipTests package
-java -jar target/*.jar --spring.profiles.active=lab --server.port=8081
+java -jar target/*.jar --spring.profiles.active=lab --server.port=8080
 ```
+
+<img width="1890" height="1046" alt="Captura de pantalla 2025-09-07 165259" src="https://github.com/user-attachments/assets/f58c2e81-0410-44ac-9760-83019acf6363" />
 
 ---
 
