@@ -23,7 +23,6 @@ management:
     health:
       show-details: when_authorized
 
-# JWT (en prod usar variable de entorno)
 jwt:
   secret: ${JWT_SECRET:super-secreto-cambiame-por-env-32chars-min}
   expiration-minutes: 120

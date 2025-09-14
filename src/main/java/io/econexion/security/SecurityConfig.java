@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,6 +31,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import javax.crypto.SecretKey;
 import java.io.IOException;
 
+@Profile("lab")        // <- se activa con el perfil 'lab'
 @Configuration
 public class SecurityConfig {
 
