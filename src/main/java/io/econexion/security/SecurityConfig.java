@@ -33,13 +33,9 @@ import java.io.IOException;
 @Configuration
 public class SecurityConfig {
 
-    // Bean único del encoder
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
 
-    // Usuarios en memoria
     @Bean
     public UserDetailsService userDetailsService(PasswordEncoder encoder) {
         UserDetails u = User.builder()
@@ -50,14 +46,12 @@ public class SecurityConfig {
         return new InMemoryUserDetailsManager(u);
     }
 
-    // Utilidad JWT
     @Bean
     public JwtUtil jwtUtil(@Value("${jwt.secret}") String secret,
                            @Value("${jwt.expiration-minutes}") long expMin) {
         return new JwtUtil(secret, expMin);
     }
 
-    // Proveedor + AuthenticationManager
     @Bean
     public AuthenticationManager authenticationManager(UserDetailsService uds, PasswordEncoder enc) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -66,30 +60,30 @@ public class SecurityConfig {
         return new ProviderManager(provider);
     }
 
-    // Filtro de JWT para proteger POST /v1/weather/**
     @Bean
     public SimpleJwtFilter simpleJwtFilter(JwtUtil jwtUtil, AuthenticationManager am) {
         return new SimpleJwtFilter(jwtUtil, am);
     }
 
-    // Cadena de filtros
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, SimpleJwtFilter jwtFilter) throws Exception {
+        // Para demo/lab
         http.csrf(csrf -> csrf.disable());
 
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/actuator/**", "/api/auth/login").permitAll()
+                .requestMatchers("/actuator/**", "/api/auth/login", "/h2-console/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/v1/weather/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/v1/weather/**").authenticated()
                 .anyRequest().permitAll()
         );
 
-        http.addFilterBefore(jwtFilter, BasicAuthenticationFilter.class);
+        // Necesario para que H2 se renderice en un frame
+        http.headers(h -> h.frameOptions(f -> f.sameOrigin()));
 
+        http.addFilterBefore(jwtFilter, BasicAuthenticationFilter.class);
         return http.httpBasic(Customizer.withDefaults()).build();
     }
 
-    // Controller de login
     @Bean
     public LoginController loginController(AuthenticationManager am, JwtUtil jwt, ObjectMapper om) {
         return new LoginController(am, jwt, om);
