@@ -2,4 +2,28 @@ server:
   port: 8080
 
 spring:
-  h2.console.enabled: true
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: econexion-lab
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when_authorized
+
+# JWT (en prod usar variable de entorno)
+jwt:
+  secret: ${JWT_SECRET:super-secreto-cambiame-por-env-32chars-min}
+  expiration-minutes: 120
