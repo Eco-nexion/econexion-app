@@ -1,6 +1,8 @@
 package io.econexion.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.econexion.lab.users.LabUserRepository;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,38 +21,41 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
+import java.util.List;
 
-@Profile("lab")        // <- se activa con el perfil 'lab'
+@Profile("lab") // <- se activa con el perfil 'lab'
 @Configuration
 public class SecurityConfig {
 
     @Bean
-    public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder encoder) {
-        UserDetails u = User.builder()
-                .username("ada")
-                .password(encoder.encode("school"))
-                .roles("USER")
-                .build();
-        return new InMemoryUserDetailsManager(u);
+    public UserDetailsService userDetailsService(LabUserRepository repo) {
+        return email -> repo.findByEmail(email)
+                .map(user -> org.springframework.security.core.userdetails.User
+                        .withUsername(user.getEmail()) // aquí usas el email
+                        .password(user.getPassword()) // ya está en BCrypt
+                        // .roles(user.getRole() != null ? user.getRole() : "USER")
+                        .build())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
     }
 
     @Bean
     public JwtUtil jwtUtil(@Value("${jwt.secret}") String secret,
-                           @Value("${jwt.expiration-minutes}") long expMin) {
+            @Value("${jwt.expiration-minutes}") long expMin) {
         return new JwtUtil(secret, expMin);
     }
 
@@ -76,8 +81,8 @@ public class SecurityConfig {
                 .requestMatchers("/actuator/**", "/api/auth/login", "/h2-console/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/v1/weather/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/v1/weather/**").authenticated()
-                .anyRequest().permitAll()
-        );
+                .requestMatchers(HttpMethod.GET, "/").authenticated()
+                .anyRequest().permitAll());
 
         // Necesario para que H2 se renderice en un frame
         http.headers(h -> h.frameOptions(f -> f.sameOrigin()));
@@ -103,16 +108,25 @@ public class SecurityConfig {
         @Override
         protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
                 throws IOException, ServletException {
-            if ("POST".equals(req.getMethod()) && req.getRequestURI().startsWith("/v1/weather/")) {
-                String auth = req.getHeader("Authorization");
-                if (auth == null || !auth.startsWith("Bearer ")) {
-                    res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing Bearer token");
-                    return;
-                }
-                String token = auth.substring(7);
+
+            String authHeader = req.getHeader("Authorization");
+
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String token = authHeader.substring(7);
+
                 try {
-                    SecretKey key = jwtUtil.key();
-                    Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+                    String username = Jwts.parserBuilder()
+                            .setSigningKey(jwtUtil.key())
+                            .build()
+                            .parseClaimsJws(token)
+                            .getBody()
+                            .getSubject();
+
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                            username, null, List.of());
+
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+
                 } catch (Exception e) {
                     res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
                     return;
@@ -122,8 +136,11 @@ public class SecurityConfig {
         }
     }
 
-    public record LoginRequest(String username, String password) {}
-    public record LoginResponse(String token) {}
+    public record LoginRequest(String email, String password) {
+    }
+
+    public record LoginResponse(String token) {
+    }
 
     public static class LoginController {
         private final AuthenticationManager am;
@@ -131,17 +148,16 @@ public class SecurityConfig {
         private final ObjectMapper om;
 
         public LoginController(AuthenticationManager am, JwtUtil jwt, ObjectMapper om) {
-            this.am = am; this.jwt = jwt; this.om = om;
+            this.am = am;
+            this.jwt = jwt;
+            this.om = om;
         }
 
-        @org.springframework.web.bind.annotation.PostMapping(
-                value = "/api/auth/login",
-                consumes = MediaType.APPLICATION_JSON_VALUE,
-                produces = MediaType.APPLICATION_JSON_VALUE)
+        @org.springframework.web.bind.annotation.PostMapping(value = "/api/auth/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
         public void login(HttpServletRequest req, HttpServletResponse res) throws IOException {
             LoginRequest body = om.readValue(req.getInputStream(), LoginRequest.class);
             Authentication auth = am.authenticate(
-                    new UsernamePasswordAuthenticationToken(body.username(), body.password()));
+                    new UsernamePasswordAuthenticationToken(body.email(), body.password()));
             String token = jwt.generate(auth.getName());
             res.setContentType(MediaType.APPLICATION_JSON_VALUE);
             om.writeValue(res.getOutputStream(), new LoginResponse(token));

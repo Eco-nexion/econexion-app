@@ -1,10 +1,10 @@
 package io.econexion.lab.users;
 
-import io.econexion.lab.users.dto.UserCreateRequest;
-import io.econexion.lab.users.dto.UserUpdateRequest;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import io.econexion.lab.users.dto.UserDto;
 
 import java.net.URI;
 import java.util.UUID;
@@ -14,8 +14,9 @@ import java.util.UUID;
 @Profile("lab")
 public class LabUserController {
 
-    private final LabUserService service;
-    public LabUserController(LabUserService service) { this.service = service; }
+    private InMemoryLabUserService service;
+    public LabUserController(InMemoryLabUserService service) { this.service = service; }
+
 
     @GetMapping
     public ResponseEntity<?> list() {
@@ -29,15 +30,15 @@ public class LabUserController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping
-    public ResponseEntity<?> create(@RequestBody UserCreateRequest req) {
-        var created = service.create(req);
-        return ResponseEntity.created(URI.create("/lab/users/" + created.id())).body(created);
+    @PostMapping("/addUser")
+    public ResponseEntity<?> create(@RequestBody UserDto user) {
+        var created = service.create(user);
+        return ResponseEntity.created(URI.create("/lab/users/" + created.getId())).body(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable UUID id, @RequestBody UserUpdateRequest req) {
-        return service.update(id, req)
+    public ResponseEntity<?> update(@PathVariable UUID id, @RequestBody UserDto user) {
+        return service.update(id, user)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
