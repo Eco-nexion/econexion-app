@@ -3,46 +3,70 @@ package io.econexion.lab.users;
 import io.econexion.lab.users.dto.*;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.springframework.stereotype.Service;      // <-- import necesario
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile; // <-- import necesario
 
 @Service
 @Profile("lab")
-public class InMemoryLabUserService implements LabUserService {
+public class InMemoryLabUserService {
+    @Autowired
+    private final LabUserRepository repository;
 
-    private final Map<UUID, UserDto> store = new ConcurrentHashMap<>();
+    // private final Map<UUID, UserDto> store = new ConcurrentHashMap<>();
 
-    public InMemoryLabUserService() {
-        // Semilla opcional para que el GET liste algo
-        var id = UUID.randomUUID();
-        store.put(id, new UserDto(id, "Ada Lovelace", "ada@demo.test"));
+    public InMemoryLabUserService(LabUserRepository repository) {
+        this.repository = repository;
+
+        // puedes inicializar datos aquí
+        UserDto newUser = new UserDto(
+            "Ada Lovelace",
+            "ada@demo.test",
+            "password123"
+        );
+        repository.save(newUser);
     }
 
-    @Override public List<UserDto> findAll() {
-        return store.values().stream().toList();
+    public List<UserDto> findAll() {
+
+        return repository.findAll();
     }
 
-    @Override public Optional<UserDto> findById(UUID id) {
-        return Optional.ofNullable(store.get(id));
+    public Optional<UserDto> findById(UUID id) {
+        return repository.findById(id);
     }
 
-    @Override public UserDto create(UserCreateRequest req) {
-        var id = UUID.randomUUID();
-        var dto = new UserDto(id, req.name(), req.email());
-        store.put(id, dto);
-        return dto;
+    public UserDto create(UserDto user) {
+        UserDto newUser = repository.save(user);
+        return newUser;
     }
 
-    @Override public Optional<UserDto> update(UUID id, UserUpdateRequest req) {
-        if (!store.containsKey(id)) return Optional.empty();
-        var dto = new UserDto(id, req.name(), req.email());
-        store.put(id, dto);
-        return Optional.of(dto);
+    public Optional<UserDto> update(UUID id, UserDto newUser) {
+        UserDto user = repository.findById(id).orElse(null);
+
+        if (user == null) {
+            return Optional.empty();
+        }
+        user.setName(newUser.getName());
+        user.setEmail(newUser.getEmail());
+        repository.save(user);
+
+        return Optional.of(user);
+        
     }
 
-    @Override public boolean delete(UUID id) {
-        return store.remove(id) != null;
+    public boolean delete(UUID id) {
+        if (!repository.existsById(id)) {
+            return false;
+        }
+        UserDto existingUser = repository.findById(id).orElse(null);
+        repository.delete(existingUser);
+        return true;
+    }
+    public boolean existsByEmail(String email) {
+        return repository.findByEmail(email).isPresent();
+    }
+    public Optional<UserDto> findByEmail(String email) {
+        return repository.findByEmail(email);
     }
 }
