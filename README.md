@@ -23,15 +23,18 @@ Spring Boot REST API for lab practice. It now includes:
 ---
 
 ## 3) Run / Ejecutar
+este comando va a ejecutar el contenedor de docker donde esta empaquetado el proyecto
 
 **Linux / macOS / Git Bash**
 ```bash
-mvn spring-boot:run "-Dspring-boot.run.arguments=--spring.profiles.active=lab"
+docker run -d -p 35000:35000 --name econexion econexion-lab
+
 ```
 
 **Windows PowerShell**
 ```powershell
-mvn spring-boot:run "-Dspring-boot.run.arguments=--spring.profiles.active=lab"
+docker run -d -p 35000:35000 --name econexion econexion-lab
+
 ```
 
 Or build and run JAR:  
@@ -46,41 +49,39 @@ The app runs at **http://localhost:8080**.
 La app corre en **http://localhost:8080**.
 
 ---
+para visualizar la documentacion de los endpoints, ponga a correr el Contenedor y consulte el siguiente link:
+```
+http://localhost:8080/swagger-ui/index.html#/
+```
+---
 
 ## 4) Endpoints (Users) / Endpoints (Usuarios)
 
 Base path: `/lab/users`
 
-| Method | Path              | Description (EN)     | Descripción (ES)          |
-|--------|-------------------|----------------------|---------------------------|
-| GET    | `/lab/users`      | List all users       | Lista todos los usuarios  |
-| GET    | `/lab/users/{id}` | Get user by id       | Obtener usuario por id    |
-| POST   | `/lab/users`      | Create user          | Crear usuario             |
-| PUT    | `/lab/users/{id}` | Update user          | Actualizar usuario        |
-| DELETE | `/lab/users/{id}` | Delete user          | Eliminar usuario          |
+| Method | Path                     | Description (EN)     | Descripción (ES)          |
+|--------|--------------------------|----------------------|---------------------------|
+| GET    | `/lab/users/allUsers`    | List all users       | Lista todos los usuarios  |
+| GET    | `/lab/users/{id}`        | Get user by id       | Obtener usuario por id    |
+| POST   | `/lab/users/addUser`     | Create user          | Crear usuario             |
+| PUT    | `/lab/users/update/{id}` | Update user          | Actualizar usuario        |
+| DELETE | `/lab/users/delete/{id}` | Delete user          | Eliminar usuario          |
 
 **POST JSON** / **Ejemplo POST**
 ```json
-{ "name": "Ada Lovelace", "email": "ada@demo.test" }
+{
+    "enterpriseName": "karenCorp",
+    "username": "karen Amaya",
+    "nit": "1000474431",
+    "email": "karen@demo.test",
+    "password": "giovann1",
+    "rol": "seller"
+}
 ```
 
 ---
 
-## 5) Endpoints (Weather) / Endpoints (Clima)
 
-Base path: `/v1/weather`
-
-| Method | Path                  | Description (EN)                | Descripción (ES)              |
-|--------|-----------------------|---------------------------------|-------------------------------|
-| GET    | `/v1/weather/{city}`  | Get stored weather for a city   | Consultar clima de una ciudad |
-| POST   | `/v1/weather/{city}`  | Save weather (requires JWT)     | Guardar clima (requiere JWT)  |
-
-**POST JSON**
-```json
-{ "weather": { "temp": 17.5, "pressure": 994.7, "humidity": 61 } }
-```
-
----
 
 ## 6) Auth / Autenticación
 
@@ -95,6 +96,33 @@ Response:
 { "token": "<JWT_TOKEN>" }
 ```
 
+**Register:**  
+`POST /api/auth/register`  
+Body:
+```json
+{
+    "enterpriseName": "karenCorp",
+    "username": "karen Amaya",
+    "nit": "1000474431",
+    "email": "karen@demo.test",
+    "password": "giovann1",
+    "rol": "seller"
+}
+```
+Response:
+```json
+{
+    "id":"UUID generado aleatoriamente",
+    "enterpriseName": "karenCorp",
+    "username": "karen Amaya",
+    "nit": "1000474431",
+    "email": "karen@demo.test",
+    "password": <hash>,
+    "rol": "seller"
+}
+```
+
+
 Use the token in requests:  
 Usar el token en peticiones:
 ```
@@ -108,7 +136,7 @@ Authorization: Bearer <JWT_TOKEN>
 `application-lab.yml` highlights:  
 ```yaml
 server:
-  port: 8080
+  port: 35000
 
 spring:
   main:
@@ -125,7 +153,7 @@ jwt:
 
 **Login**
 ```bash
-curl -X POST http://localhost:8080/api/auth/login   -H "Content-Type: application/json"   -d '{"username":"ada","password":"school"}'
+curl -X POST http://localhost:35000/api/auth/login   -H "Content-Type: application/json"   -d '{"username":"ada","password":"school"}'
 ```
 
 **Weather POST (with token)**
