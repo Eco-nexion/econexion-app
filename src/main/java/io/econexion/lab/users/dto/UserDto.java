@@ -3,7 +3,7 @@ package io.econexion.lab.users.dto;
 import java.util.UUID;
 
 import jakarta.persistence.*;
-
+// ROLES -> SELLER, BUYER, ADMIN
 @Entity
 @Table(name="users")
 public class UserDto{
@@ -97,3 +97,4 @@ public class UserDto{
         this.rol = rol;
     }
 }
+
