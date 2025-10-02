@@ -2,7 +2,7 @@ package io.econexion.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.econexion.lab.users.LabUserRepository;
+import io.econexion.repository.UserRepository;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -29,7 +29,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.util.List;
 
@@ -43,7 +42,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(LabUserRepository repo) {
+    public UserDetailsService userDetailsService(UserRepository repo) {
         return email -> repo.findByEmail(email)
                 .map(user -> org.springframework.security.core.userdetails.User
                         .withUsername(user.getEmail()) // aquí usas el email
