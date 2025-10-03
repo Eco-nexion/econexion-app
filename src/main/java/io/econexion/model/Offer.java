@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import jakarta.persistence.*;
 import lombok.*;
-import io.econexion.model.*;
 
 @Entity
 @Getter
@@ -25,12 +24,12 @@ public class Offer {
     @Column(name = "date", nullable = false)
     private String date;
 
-    @ManyToOne
-    @JoinColumn(name = "publication_id")
-    private Post publication;
+//    @ManyToOne
+//    @JoinColumn(name = "publication_id")
+//    private Post publication;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private UserDto ofertante;
+//    @ManyToOne
+//    @JoinColumn(name = "user_id")
+//    private User ofertante;
 
 }

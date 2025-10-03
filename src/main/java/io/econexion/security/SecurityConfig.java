@@ -32,7 +32,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import java.io.IOException;
 import java.util.List;
 
-@Profile("lab") // <- se activa con el perfil 'lab'
+// <- se activa con el perfil 'lab'
 @Configuration
 public class SecurityConfig {
 
@@ -53,9 +53,10 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtUtil jwtUtil(@Value("${jwt.secret}") String secret,
-            @Value("${jwt.expiration-minutes}") long expMin) {
-        return new JwtUtil(secret, expMin);
+    public JwtUtil jwtUtil(
+            @Value("${jwt.secret}") String secret,
+            @Value("${jwt.expiration-minutes}") long expirationMinutes) {
+        return new JwtUtil(secret, expirationMinutes);
     }
 
     @Bean
@@ -87,13 +88,14 @@ public class SecurityConfig {
         http.headers(h -> h.frameOptions(f -> f.sameOrigin()));
 
         http.addFilterBefore(jwtFilter, BasicAuthenticationFilter.class);
-        return http.httpBasic(Customizer.withDefaults()).build();
+        return http.build();
     }
 
-    @Bean
-    public LoginController loginController(AuthenticationManager am, JwtUtil jwt, ObjectMapper om) {
-        return new LoginController(am, jwt, om);
-    }
+    // @Bean
+    // public LoginController loginController(AuthenticationManager am, JwtUtil jwt,
+    // ObjectMapper om) {
+    // return new LoginController(am, jwt, om);
+    // }
 
     // ===== soporte =====
     static class SimpleJwtFilter extends BasicAuthenticationFilter {

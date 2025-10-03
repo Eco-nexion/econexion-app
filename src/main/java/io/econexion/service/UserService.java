@@ -2,7 +2,7 @@ package io.econexion.service;
 
 import java.util.*;
 import io.econexion.repository.UserRepository;
-import io.econexion.model.UserDto;
+import io.econexion.model.User;
 import jakarta.annotation.PostConstruct;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;      // <-- import necesario
@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile; // <-- import necesario
 
 @Service
-@Profile("lab")
+ 
 public class UserService {
     private final UserRepository repository;
     @Autowired
@@ -23,7 +23,7 @@ public class UserService {
     @PostConstruct
     public void init() {
         try {
-            UserDto newUser = new UserDto(
+            User newUser = new User(
                     "Econexia",
                     "administrativo",
                     "123456789",
@@ -37,12 +37,12 @@ public class UserService {
         }
     }
 
-    public List<UserDto> findAll() {
+    public List<User> findAll() {
 
         return repository.findAll();
     }
 
-    public Optional<UserDto> findById(UUID id) throws Exception {
+    public Optional<User> findById(UUID id) throws Exception {
         if (!repository.findById(id).isPresent()) {
             throw new Exception("Usuario no encontrado");
 
@@ -50,7 +50,7 @@ public class UserService {
         return repository.findById(id);
     }
 
-    public UserDto create(UserDto user) throws Exception {
+    public User create(User user) throws Exception {
         if (findByEmail(user.getEmail()).isPresent()) {
             throw new Exception("El usuario ya existe");
         }
@@ -58,7 +58,7 @@ public class UserService {
         return repository.save(user);
     }
 
-    public Optional<UserDto> update(UUID id, UserDto newUser) throws Exception {
+    public Optional<User> update(UUID id, User newUser) throws Exception {
         if (!repository.findById(id).isPresent()) {
             throw new Exception("Usuario no encontrado");
         }
@@ -73,7 +73,7 @@ public class UserService {
         repository.deleteById(id);
         return true;
     }
-    public Optional<UserDto> findByEmail(String email) {
+    public Optional<User> findByEmail(String email) {
         return repository.findByEmail(email);
     }
 }

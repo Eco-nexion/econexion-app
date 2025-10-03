@@ -1,14 +1,7 @@
 io\econexion\security\SecurityConfig.class
-io\econexion\auth\AuthenticationController.class
 io\econexion\security\SecurityConfig$LoginController.class
-io\econexion\lab\users\dto\UserDto.class
-io\econexion\auth\AuthenticationController$LoginResponse.class
-io\econexion\lab\users\LabUserController.class
 io\econexion\security\JwtUtil.class
 io\econexion\security\SecurityConfig$LoginResponse.class
-io\econexion\lab\users\InMemoryLabUserService.class
 io\econexion\security\SecurityConfig$SimpleJwtFilter.class
-io\econexion\web\LoginInfoController.class
 io\econexion\EconexionLabApplication.class
-io\econexion\auth\AuthenticationController$LoginRequest.class
 io\econexion\security\SecurityConfig$LoginRequest.class

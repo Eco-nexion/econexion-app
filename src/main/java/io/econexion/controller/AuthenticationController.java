@@ -1,13 +1,12 @@
 package io.econexion.controller;
 
 import io.econexion.service.UserService;
-import io.econexion.model.UserDto;
+import io.econexion.model.User;
 import io.econexion.security.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,13 +21,9 @@ import org.springframework.web.bind.annotation.*;
 
 
 public class AuthenticationController {
-    @Autowired
     private UserService userService;
-    @Autowired
     private  AuthenticationManager authenticationManager;
-    @Autowired
     private  JwtUtil jwtUtil;
-    @Autowired
     private  PasswordEncoder passwordEncoder;
 
     public AuthenticationController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserService userService, PasswordEncoder passwordEncoder) {
@@ -81,11 +76,11 @@ public class AuthenticationController {
     @Operation(summary = "Registrar nuevo usuario", description = "Crea un nuevo usuario y devuelve su información")
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody UserDto user) throws Exception {
+    public ResponseEntity<?> register(@Valid @RequestBody User user) throws Exception {
         if (userService.findByEmail(user.getEmail()).isPresent()) {
             return ResponseEntity.badRequest().body("Email is already in use");
         }
-        UserDto newUser = userService.create(
+        User newUser = userService.create(
                 user
         );
 

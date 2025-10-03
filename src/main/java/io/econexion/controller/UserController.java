@@ -1,6 +1,6 @@
 package io.econexion.controller;
 
-import io.econexion.model.UserDto;
+import io.econexion.model.User;
 import io.econexion.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,7 +16,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/lab/users")
-@Profile("lab")
+ 
 @Tag(name = "Usuarios en memoria", description = "Gestión de usuarios para pruebas en memoria")
 public class UserController {
 
@@ -42,7 +42,7 @@ public class UserController {
 
     @GetMapping("/allUsers")
     public ResponseEntity<?> list() {
-        List<UserDto> salida = service.findAll();
+        List<User> salida = service.findAll();
         if (salida.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
@@ -76,14 +76,14 @@ public class UserController {
                     required = true,
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = UserDto.class),
+                            schema = @Schema(implementation = User.class),
                             examples = @ExampleObject(
                                     value = "{\"enterpriseName\": \"Corporation\", \"name\": \"Maria\", \"nit\": \"1236546987\", \"email\": \"maria@ejemplo.com\", \"password\": \"contraseñaSegura\",\"rol\": \"seller/buyer\" }"
                             )
                     )
             ))
     @PostMapping("/addUser")
-    public ResponseEntity<UserDto> create(@RequestBody UserDto user) throws Exception {
+    public ResponseEntity<User> create(@RequestBody User user) throws Exception {
         return ResponseEntity.ok(service.create(user));
     }
 
@@ -94,14 +94,14 @@ public class UserController {
                     required = true,
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = UserDto.class),
+                            schema = @Schema(implementation = User.class),
                             examples = @ExampleObject(
                                     value = "{\"enterpriseName\": \"Corporation\", \"name\": \"Maria\", \"nit\": \"1236546987\", \"email\": \"maria@ejemplo.com\", \"password\": \"contraseñaSegura\",\"rol\": \"seller/buyer\" }"
                             )
                     )
             ))
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> update(@PathVariable UUID id, @RequestBody UserDto user) throws Exception {
+    public ResponseEntity<?> update(@PathVariable UUID id, @RequestBody User user) throws Exception {
         return service.update(id, user)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());

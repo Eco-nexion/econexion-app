@@ -34,12 +34,12 @@ public class Post {
     @Column(name = "description", nullable = false)
     private String description;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private UserDto owner;
-
-    @OneToMany(mappedBy = "publication")
-    private List<Offer> offers;
+//    @ManyToOne
+//    @JoinColumn(name = "user_id")
+//    private User owner;
+//
+//    @OneToMany(mappedBy = "publication")
+//    private List<Offer> offers;
     
 
 }

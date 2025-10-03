@@ -20,12 +20,13 @@ public class Message {
     private String text;
 
     @Column(name = "owner", nullable = false)
-    private UserDto owner;
+    private String owner;
+
 
     @Column(name = "date", nullable = false)
     private String date;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private UserDto sender;
+//    @ManyToOne
+//    @JoinColumn(name = "user_id")
+//    private User sender;
 }
